@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,16 +14,39 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.revature.models.ORMModel;
-import com.revature.utils.ConnectionUtil;
 
 public class ORMDAOImpl implements ORMDAO{
 	
-	ORMModel modelORM = new ORMModel();
+	static ORMModel modelORM = new ORMModel();
 	
-	String connectionURL = modelORM.getConnectionURL();
-	String connectionUN = modelORM.getConnectionUN();
-	String connectionPW = modelORM.getConnectionPW();
-	String driverName = modelORM.getDriverName();
+	public static Connection getConnection() throws SQLException {
+		if (connection!=null && !connection.isClosed()) { //this makes it a singleton connection
+			return connection;
+		}else {
+			
+			//For many frameworks, or cases where there are multiple SQL drivers, you will need to register which
+			//Driver you are using for the connection interface. The Class.forName method will allow you to do this.
+			//This step is often redundant or often unnecessary for simple projects but is considered best practice.
+			
+			try {
+				Class.forName("org.postgresql.Driver");
+			}catch(ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+			String url = ORMModel.getConnectionURL();
+			String username = ORMModel.getConnectionUN();
+			String password = ORMModel.getConnectionPW();
+			
+			//Unsure if I need to run environment variables or just use these. Will ask Pablo or Tim
+			
+			connection = DriverManager.getConnection(url, username, password);
+			
+			return connection;
+		}
+	}
+	
+	private static Connection connection;
 	//I changed the Connection to ORMModel to test *
 	@Override
 	public List<Object> retrieveAllObjects(Object object1) {
@@ -37,7 +61,7 @@ public class ORMDAOImpl implements ORMDAO{
 				//calling constructor for making the new objects
 				Constructor<?> objectConstructor = objectClass.getConstructor();
 				
-				Connection conn = ConnectionUtil.getConnection(connectionURL, connectionUN, connectionPW, driverName);
+				Connection conn = getConnection();
 				
 				String SeaQuill = new String("SELECT * FROM "+tableName+";");
 				Statement statement = conn.createStatement();
@@ -57,11 +81,15 @@ public class ORMDAOImpl implements ORMDAO{
 						
 						if(fields[i].getGenericType().toString().equals("class java.lang.String")) {
 							Method invokeMethods = objectClass.getMethod(setterName, String.class);
-							invokeMethods.invoke(mockObject, (Object) result.getObject((String) fields[i].getName()));
+							invokeMethods.invoke(mockObject, result.getObject((String) fields[i].getName()));
 						} else if (fields[i].getGenericType().toString().equals("int")) {
 							Method invokeMethods = objectClass.getMethod(setterName, int.class);
-							invokeMethods.invoke(mockObject, (Object) result.getObject((String) fields[i].getName()));
+							invokeMethods.invoke(mockObject, result.getInt(fields[i].getName()));
+						} else if (fields[i].getGenericType().toString().equals("double")){
+							Method invokeMethods = objectClass.getMethod(setterName, double.class);
+							invokeMethods.invoke(mockObject, result.getDouble(fields[i].getName()));
 						}
+						
 					}
 					objectList.add(mockObject);
 				}
@@ -88,7 +116,6 @@ public class ORMDAOImpl implements ORMDAO{
 		
 		StringBuilder columnNameSB = new StringBuilder();
 		columnNameSB.append(idName);
-		columnNameSB.insert(5,"_");
 		String columnName = columnNameSB.toString();
 		String seaQuillStatement = new String("SELECT * FROM "+tableName+" WHERE "+columnName+" = "+Id+";");
 			try {
@@ -96,7 +123,7 @@ public class ORMDAOImpl implements ORMDAO{
 				Constructor<?> objectConstructor = objectClass.getConstructor();
 				//This is the object I will be returning back to the WebApp
 				Object returnedObject = objectConstructor.newInstance();
-				Connection conn = ORMModel.getConnection(connectionURL, connectionUN, connectionPW, driverName);
+				Connection conn = getConnection();
 				//Hopefully connection worked.
 				Statement statement = conn.createStatement();
 				ResultSet result = statement.executeQuery(seaQuillStatement);
@@ -106,13 +133,17 @@ public class ORMDAOImpl implements ORMDAO{
 					
 						String setValue = "set" + fields[i].getName().substring(0,1).toUpperCase() + fields[i].getName().substring(1);
 						//Getting the methods to invoke, then changing them per type. 
-						if (fields[i].getGenericType().equals("int")) {
-							Method ORMSetter = objectClass.getMethod(setValue, int.class);
-							ORMSetter.invoke(returnedObject, (Object) result.getObject((String) fields[i].getName()));
-						} else if (fields[i].getGenericType().equals("class java.lang.String")) {
+						if(fields[i].getGenericType().toString().equals("class java.lang.String")) {
 							Method ORMSetter = objectClass.getMethod(setValue, String.class);
-							ORMSetter.invoke(returnedObject, (Object) result.getObject((String) fields[i].getName()));
+							ORMSetter.invoke(returnedObject, result.getObject((String) fields[i].getName()));
+						} else if (fields[i].getGenericType().toString().equals("int")) {
+							Method ORMSetter = objectClass.getMethod(setValue, int.class);
+							ORMSetter.invoke(returnedObject, result.getInt(fields[i].getName()));
+						} else if (fields[i].getGenericType().toString().equals("double")){
+							Method ORMSetter = objectClass.getMethod(setValue, double.class);
+							ORMSetter.invoke(returnedObject, result.getDouble(fields[i].getName()));
 						}
+							
 					}return returnedObject;
 					
 				}
@@ -151,14 +182,13 @@ public class ORMDAOImpl implements ORMDAO{
 		
 		StringBuilder columnNameSB = new StringBuilder();
 		columnNameSB.append(idName);
-		columnNameSB.insert(5,"_");
 		//returning the name as string after inserting the underscore
 		String columnName = columnNameSB.toString();
 		//concatenating this value name to the previous builder
 		objectStatementSB.append(columnName + " = "+id+";");
 		String seaQuill = objectStatementSB.toString();
 		//Attempting connection
-			try (Connection conn = ORMModel.getConnection(connectionURL, connectionUN, connectionPW, driverName)){
+			try (Connection conn = getConnection()){
 				Statement statement = conn.createStatement();
 				statement.execute(seaQuill);
 				
@@ -190,16 +220,14 @@ public class ORMDAOImpl implements ORMDAO{
 		String fieldName2 = fields[0].getName().toLowerCase();
 		
 		fieldBuilder.append(fieldName);
-		fieldBuilder.insert(5,"_");
 		String columnName = fieldBuilder.toString();
 		fieldBuilder2.append(fieldName2);
-		fieldBuilder2.insert(5, "_");
 		String columnName2 = fieldBuilder2.toString();
 		
 		
 		String SeaQuill = "UPDATE "+tableName+" SET "+columnName+" = '"+fieldValue+"' WHERE "+columnName2+" = "+id+";";
 						
-		try (Connection conn = ORMModel.getConnection(connectionURL, connectionUN, connectionPW, driverName)){
+		try (Connection conn = getConnection()){
 			
 			PreparedStatement statement = conn.prepareStatement(SeaQuill);
 			statement.executeQuery();
@@ -232,10 +260,6 @@ public class ORMDAOImpl implements ORMDAO{
 				}
 					
 			}
-			//creating the table column names. This part is very restrictive. I wish I changed it.
-			fieldBuilder.insert(28, "_");
-			fieldBuilder.insert(40, "_");
-			fieldBuilder.insert(52, "_");
 			//completed first part of the insert statement
 			String columnNames = fieldBuilder.toString();
 			//Working on getting the values to put into the database
@@ -264,7 +288,7 @@ public class ORMDAOImpl implements ORMDAO{
 			
 			String SeqQuill = "INSERT INTO "+tableName+" ("+columnNames+") VALUES ("+rowValues+");";
 			
-			try (Connection conn = ORMModel.getConnection(connectionURL, connectionUN, connectionPW, driverName)){
+			try (Connection conn = getConnection()){
 				PreparedStatement statement = conn.prepareStatement(SeqQuill);
 				statement.execute();
 			}catch (SQLException e) {

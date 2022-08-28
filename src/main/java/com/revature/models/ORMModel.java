@@ -1,23 +1,12 @@
 package com.revature.models;
 
-import com.revature.utils.ConnectionUtil;
 
-public class ORMModel extends ConnectionUtil{
+public class ORMModel{
 	
-	private String connectionURL;
-	private String ConnectionUN;
-	private String ConnectionPW;
-	private String driverName;
-	
-	
-	
-	public ORMModel(String connectionURL, String connectionUN, String connectionPW, String driverName) {
-		super();
-		this.connectionURL = connectionURL;
-		ConnectionUN = connectionUN;
-		ConnectionPW = connectionPW;
-		this.driverName = driverName;
-	}
+	private static String connectionURL;
+	private static String ConnectionUN;
+	private static String ConnectionPW;
+	private static String driverName;
 	
 	
 	public ORMModel() {
@@ -25,29 +14,29 @@ public class ORMModel extends ConnectionUtil{
 	}
 
 
-	public String getConnectionURL() {
+	public static String getConnectionURL() {
 		return connectionURL;
 	}
-	public void setConnectionURL(String connectionURL) {
-		this.connectionURL = connectionURL;
+	public static void setConnectionURL(String connectionURL) {
+		ORMModel.connectionURL = connectionURL;
 	}
-	public String getConnectionUN() {
+	public static String getConnectionUN() {
 		return ConnectionUN;
 	}
-	public void setConnectionUN(String connectionUN) {
-		ConnectionUN = connectionUN;
+	public static void setConnectionUN(String connectionUN) {
+		ORMModel.ConnectionUN = connectionUN;
 	}
-	public String getConnectionPW() {
+	public static String getConnectionPW() {
 		return ConnectionPW;
 	}
-	public void setConnectionPW(String connectionPW) {
-		ConnectionPW = connectionPW;
+	public static void setConnectionPW(String connectionPW) {
+		ORMModel.ConnectionPW = connectionPW;
 	}
-	public String getDriverName() {
+	public static String getDriverName() {
 		return driverName;
 	}
-	public void setDriverName(String driverName) {
-		this.driverName = driverName;
+	public static void setDriverName(String driverName) {
+		ORMModel.driverName = driverName;
 	}
 
 
@@ -67,39 +56,6 @@ public class ORMModel extends ConnectionUtil{
 		result = prime * result + ((connectionURL == null) ? 0 : connectionURL.hashCode());
 		result = prime * result + ((driverName == null) ? 0 : driverName.hashCode());
 		return result;
-	}
-
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ORMModel other = (ORMModel) obj;
-		if (ConnectionPW == null) {
-			if (other.ConnectionPW != null)
-				return false;
-		} else if (!ConnectionPW.equals(other.ConnectionPW))
-			return false;
-		if (ConnectionUN == null) {
-			if (other.ConnectionUN != null)
-				return false;
-		} else if (!ConnectionUN.equals(other.ConnectionUN))
-			return false;
-		if (connectionURL == null) {
-			if (other.connectionURL != null)
-				return false;
-		} else if (!connectionURL.equals(other.connectionURL))
-			return false;
-		if (driverName == null) {
-			if (other.driverName != null)
-				return false;
-		} else if (!driverName.equals(other.driverName))
-			return false;
-		return true;
 	}
 	
 	

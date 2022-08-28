@@ -13,6 +13,8 @@ public interface ORMDAO {
 		void updateObject(Object object1, int id, String fieldValue);
 		
 		void insertObject(Object object1);
+		
+		
 
 	}
 
