@@ -84,9 +84,9 @@ public class ORMDAOImpl implements ORMDAO{
 	public Object getById(Object object1, int Id) {
 		//first getting the table name 
 		String tableName = object1.getClass().getSimpleName().toLowerCase();
-		//Next gathering the class info?
+		//Next gathering the class info
 		Class<?> objectClass = object1.getClass();
-		Field[] fields = objectClass.getDeclaredFields();
+		Field[] fields = objectClass.getDeclaredFields(); 
 		//Getting only the field I want
 		String idName = fields[0].getName().toLowerCase();
 		
@@ -106,10 +106,10 @@ public class ORMDAOImpl implements ORMDAO{
 				ResultSet result = statement.executeQuery(seaQuillStatement);
 				//Doing a for loop for the result set. Like how we did without the ORM?
 				if(result.next()) {
-					for (int i = 0; i < fields.length; i++) { //Code was unreachable. I don't really know what that means. 
+					for (int i = 0; i < fields.length; i++) { //Fixed the unreachable code issue
 					
 						String setValue = "set" + fields[i].getName().substring(0,1).toUpperCase() + fields[i].getName().substring(1);
-						//Do i need the actual setters and stuff? How do I do that? I haven't invoked them 
+						//Getting the methods to invoke, then changing them per type. 
 						if (fields[i].getGenericType().equals("int")) {
 							Method ORMSetter = objectClass.getMethod(setValue, int.class);
 							ORMSetter.invoke(returnedObject, (Object) result.getObject((String) fields[i].getName()));
@@ -146,7 +146,7 @@ public class ORMDAOImpl implements ORMDAO{
 		//first getting the table name 
 		String tableName = object1.getClass().getSimpleName().toLowerCase();
 		//creating SQL statement 
-		StringBuilder objectStatementSB = new StringBuilder("DELETE * FROM "+tableName+"WHERE ");
+		StringBuilder objectStatementSB = new StringBuilder("DELETE * FROM "+tableName+" WHERE");
 		//Looking at entire class quickly to get to fields
 		Class<?> objectClass = object1.getClass();
 		Field[] fields = objectClass.getDeclaredFields();
@@ -266,7 +266,7 @@ public class ORMDAOImpl implements ORMDAO{
 			
 			String rowValues = rowValueBuilder.toString();
 			
-			String SeqQuill = "INSERT INTO "+tableName+" ("+columnNames+" VALUES ("+rowValues+");";
+			String SeqQuill = "INSERT INTO "+tableName+" ("+columnNames+") VALUES ("+rowValues+");";
 			
 			try (Connection conn = ORMModel.getConnection(connectionURL, connectionUN, connectionPW, driverName)){
 				PreparedStatement statement = conn.prepareStatement(SeqQuill);
