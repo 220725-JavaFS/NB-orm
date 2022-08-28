@@ -27,9 +27,9 @@ public class ORMDAOImpl implements ORMDAO{
 			//For many frameworks, or cases where there are multiple SQL drivers, you will need to register which
 			//Driver you are using for the connection interface. The Class.forName method will allow you to do this.
 			//This step is often redundant or often unnecessary for simple projects but is considered best practice.
-			
+			String driverName = ORMModel.getDriverName();
 			try {
-				Class.forName("org.postgresql.Driver");
+				Class.forName(driverName);
 			}catch(ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -103,7 +103,6 @@ public class ORMDAOImpl implements ORMDAO{
 		return null;
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public Object getById(Object object1, int Id) {
 		//first getting the table name 
@@ -286,10 +285,10 @@ public class ORMDAOImpl implements ORMDAO{
 			
 			String rowValues = rowValueBuilder.toString();
 			
-			String SeqQuill = "INSERT INTO "+tableName+" ("+columnNames+") VALUES ("+rowValues+");";
+			String SeaqQuill = "INSERT INTO "+tableName+" ("+columnNames+") VALUES ("+rowValues+");";
 			
 			try (Connection conn = getConnection()){
-				PreparedStatement statement = conn.prepareStatement(SeqQuill);
+				PreparedStatement statement = conn.prepareStatement(SeaqQuill);
 				statement.execute();
 			}catch (SQLException e) {
 				e.printStackTrace();
