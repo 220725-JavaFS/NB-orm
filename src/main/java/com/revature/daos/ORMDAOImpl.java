@@ -1,7 +1,5 @@
 package com.revature.daos;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,13 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.revature.models.ORMModel;
 import com.revature.utils.ConnectionUtil;
-import com.sun.jdi.InvocationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ORMDAOImpl implements ORMDAO{
 	
