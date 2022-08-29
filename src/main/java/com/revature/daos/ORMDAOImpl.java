@@ -77,7 +77,7 @@ public class ORMDAOImpl implements ORMDAO{
 						//Creating the setter names to set the object info to store
 						String setterName = "set" + fields[i].getName().substring(0,1).toUpperCase() + fields[i].getName().substring(1);
 					 
-						//Have to make sure that the values are appropriately typed. It's a good thing I only have two types.
+						//Have to make sure that the values are appropriately typed. It's a good thing I only have two types...I have 3.
 						
 						if(fields[i].getGenericType().toString().equals("class java.lang.String")) {
 							Method invokeMethods = objectClass.getMethod(setterName, String.class);
@@ -172,7 +172,7 @@ public class ORMDAOImpl implements ORMDAO{
 		//first getting the table name 
 		String tableName = object1.getClass().getSimpleName().toLowerCase();
 		//creating SQL statement 
-		StringBuilder objectStatementSB = new StringBuilder("DELETE * FROM "+tableName+" WHERE");
+		StringBuilder objectStatementSB = new StringBuilder("DELETE FROM "+tableName+" WHERE ");
 		//Looking at entire class quickly to get to fields
 		Class<?> objectClass = object1.getClass();
 		Field[] fields = objectClass.getDeclaredFields();
@@ -206,7 +206,7 @@ public class ORMDAOImpl implements ORMDAO{
 		String tableName = object1.getClass().getSimpleName().toLowerCase();
 		//Now getting class for many other processes
 		Class<?> tableClass = object1.getClass();
-		//Declaring a field builder for my classes
+		//Declaring a field builder for my classes. If I need them
 		StringBuilder fieldBuilder = new StringBuilder();
 		StringBuilder fieldBuilder2 = new StringBuilder();
 		//Declaring another StringBuilder for later use
@@ -214,14 +214,14 @@ public class ORMDAOImpl implements ORMDAO{
 		Field[] fields = tableClass.getDeclaredFields();
 		//Iterating over Array, creating field. Extracting field names into a StringBuilder to be modified later.
 		
-		String fieldName = fields[6].getName().toLowerCase();
+		String columnName = fields[6].getName().toLowerCase();
 		
-		String fieldName2 = fields[0].getName().toLowerCase();
+		String columnName2 = fields[0].getName().toLowerCase();
 		
-		fieldBuilder.append(fieldName);
-		String columnName = fieldBuilder.toString();
-		fieldBuilder2.append(fieldName2);
-		String columnName2 = fieldBuilder2.toString();
+//		fieldBuilder.append(fieldName);
+//		String columnName = fieldBuilder.toString();
+//		fieldBuilder2.append(fieldName2);
+//		String columnName2 = fieldBuilder2.toString();
 		
 		
 		String SeaQuill = "UPDATE "+tableName+" SET "+columnName+" = '"+fieldValue+"' WHERE "+columnName2+" = "+id+";";
@@ -229,7 +229,7 @@ public class ORMDAOImpl implements ORMDAO{
 		try (Connection conn = getConnection()){
 			
 			PreparedStatement statement = conn.prepareStatement(SeaQuill);
-			statement.executeQuery();
+			statement.execute();
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
