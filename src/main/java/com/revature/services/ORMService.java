@@ -8,9 +8,21 @@ import com.revature.models.ORMModel;
 
 public class ORMService {
 	
-	ORMDAO ORMDAO = new ORMDAOImpl();
-	ORMModel modelORM = new ORMModel();
+	ORMDAO ORMDAO;
+	ORMModel modelORM; 
 	
+
+	public ORMService(ORMDAOImpl mockDao) {
+		ORMDAO = mockDao;
+		modelORM = new ORMModel();
+	}
+	
+	public ORMService() {
+		super();
+		ORMDAO = new ORMDAOImpl();
+		modelORM = new ORMModel();
+	}
+
 	public List<Object> retrieveAllObjectsService(Object objectFromWeb){
 		return ORMDAO.retrieveAllObjects(objectFromWeb);
 	}

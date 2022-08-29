@@ -7,11 +7,23 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import com.revature.daos.ORMDAOImpl;
 
 class ORMServiceTest {
+	
+	private ORMDAOImpl mockDao = Mockito.mock(ORMDAOImpl.class);
+	private ORMService ormService = new ORMService(mockDao);
+	private static Object testObject;
+	private static int testInt;
+	private static String value;
+	private static boolean result;
+	
 
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
+	 
 	}
 
 	@AfterAll
@@ -20,20 +32,21 @@ class ORMServiceTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		testObject = null;
 	}
 
-	@AfterEach
-	void tearDown() throws Exception {
-	}
 
 	@Test
-	void testRetrieveAllObjectsService() {
+	void testRetrieveAllObjectsServiceReturnsNull() {
+		
 		fail("Not yet implemented");
 	}
 
 	@Test
 	void testGetObjectByIdService() {
-		fail("Not yet implemented");
+		testObject = 71;
+		result = Mockito.when(ormService.retrieveAllObjectsService(testObject)).equals(null);
+		assertEquals(result, false);
 	}
 
 	@Test
